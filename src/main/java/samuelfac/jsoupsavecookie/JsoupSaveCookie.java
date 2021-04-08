@@ -1,5 +1,8 @@
 package samuelfac.jsoupsavecookie;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -18,6 +21,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -37,6 +41,7 @@ import samuelfac.jsoupsavecookie.util.JsoupParameters;
  */
 @NoArgsConstructor
 @RequiredArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JsoupSaveCookie {
 
@@ -45,9 +50,15 @@ public class JsoupSaveCookie {
 	 */
 	@NonNull
 	Boolean ignoreSsl;
+	
+	/**
+	 * Set HTTP proxy
+	 * <br>Ex: <b>new InetSocketAddress("http://proxy.server.net", 3131);</b>
+	 */
+	public InetSocketAddress proxy = null;
 
 	@Getter
-	Map<String, String> savedCookies = new HashMap<String, String>();
+	final Map<String, String> savedCookies = new HashMap<String, String>();
 
 	/**
 	 * The same of execute, but parses return to Document
@@ -80,17 +91,22 @@ public class JsoupSaveCookie {
 		if (param.getRequestBody() != null) {
 			conn.requestBody(param.getRequestBody());
 		}
+		if (proxy != null) {
+			conn.proxy(new Proxy(Type.HTTP, proxy));
+		}
 		if (!savedCookies.isEmpty()) {
 			conn.cookies(savedCookies);
 		}
 		if (ignoreSsl != null && ignoreSsl.booleanValue() == true) {
 			conn.sslSocketFactory(returnIgnoreSsl());
 		}
+		conn.ignoreContentType(true);
 		conn.followRedirects(true);
 
 		Response resp = conn.execute();
 		if (!resp.cookies().isEmpty()) {
-			savedCookies = resp.cookies();
+			savedCookies.clear();
+			savedCookies.putAll(resp.cookies());
 		}
 
 		return resp;
