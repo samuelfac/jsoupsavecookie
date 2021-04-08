@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import samuelfac.jsoupsavecookie.util.JsoupParameters;
 
@@ -67,7 +68,8 @@ public class JsoupSaveCookie {
 	 * @return Document of url
 	 * @throws Exception
 	 */
-	public Document executeDoc(@NonNull JsoupParameters param) throws Exception {
+	@SneakyThrows
+	public Document executeDoc(@NonNull JsoupParameters param) {
 		return execute(param).parse();
 	}
 
@@ -79,7 +81,8 @@ public class JsoupSaveCookie {
 	 * @return Response of url
 	 * @throws Exception
 	 */
-	public Response execute(@NonNull JsoupParameters param) throws Exception {
+	@SneakyThrows
+	public Response execute(@NonNull JsoupParameters param) {
 		Connection conn = Jsoup.connect(param.getUrl()).userAgent(org.jsoup.helper.HttpConnection.DEFAULT_UA);
 		conn.method(param.getMethod());
 		if (param.getData() != null) {
@@ -119,7 +122,8 @@ public class JsoupSaveCookie {
 	 * @throws KeyManagementException
 	 * @throws NoSuchAlgorithmException
 	 */
-	private SSLSocketFactory returnIgnoreSsl() throws KeyManagementException, NoSuchAlgorithmException {
+	@SneakyThrows
+	private SSLSocketFactory returnIgnoreSsl() {
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
 				return null;
